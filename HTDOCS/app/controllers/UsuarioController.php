@@ -13,31 +13,32 @@ class UsuarioController extends Controller
             exit;
         }
 
-        $usuarioModel  = new Usuario();
+        // MODELOS QUE VAMOS USAR
         $conteudoModel = new Conteudo();
-        $materiaModel  = new Materia();
+        $usuarioModel  = new Usuario();
 
-        // pega os dados do usuário
-        $usuario = $usuarioModel->buscarPorId($usuarioId);
+        // Monta estatísticas dinâmicas conforme o tipo
+        $estatisticas = [];
 
-        // estatísticas
         if (($_SESSION['usuario_tipo'] ?? '') === 'aluno') {
             $estatisticas = [
-                'acessos'      => (int) $conteudoModel->contarAcessosPorAluno($usuarioId),
-                'disciplinas'  => (int) $materiaModel->contarPorAluno($usuarioId),
-                'favoritos'    => (int) $conteudoModel->contarFavoritosPorAluno($usuarioId),
-                'tempo_estudo' => null // placeholder até implementar
+                'acessos'     => (int) $conteudoModel->contarAcessosPorAluno($usuarioId),
+                'disciplinas' => (int) $usuarioModel->contarMateriasAluno($usuarioId), // <-- ajustado
+                'favoritos'   => (int) $conteudoModel->contarFavoritosPorAluno($usuarioId),
+                'tempo_estudo'=> null, // placeholder
             ];
         } else { // professor
             $estatisticas = [
-                'publicados'    => (int) $conteudoModel->contarPorProfessor($usuarioId),
-                'alunos'        => (int) $usuarioModel->contarAlunosPorProfessor($usuarioId),
-                'visualizacoes' => (int) $conteudoModel->contarAcessosPorProfessor($usuarioId),
-                'avaliacao'     => null // se futuramente calcular média
+                'publicados'     => (int) $conteudoModel->contarPorProfessor($usuarioId),
+                'alunos'         => (int) $usuarioModel->contarAlunosPorProfessor($usuarioId),
+                'visualizacoes'  => (int) $conteudoModel->contarAcessosPorProfessor($usuarioId)
             ];
         }
 
-        return $this->view("usuario/perfil", [
+        // pega dados do usuário
+        $usuario = $usuarioModel->buscarPorId($usuarioId);
+
+        return $this->view("auth/perfil", [
             "usuario"      => $usuario,
             "mensagem"     => $_SESSION['mensagem'] ?? null,
             "erro"         => $_SESSION['erro'] ?? null,
@@ -78,6 +79,7 @@ class UsuarioController extends Controller
                 exit;
             }
 
+            // Montar dados
             $dados = [
                 'nome'  => $nome,
                 'email' => $email,
@@ -117,9 +119,8 @@ class UsuarioController extends Controller
             $senhaAtual   = $_POST['senha_atual'] ?? '';
             $novaSenha    = $_POST['nova_senha'] ?? '';
             $confirmar    = $_POST['confirmar_senha'] ?? '';
-
             $usuarioModel = new Usuario();
-            $usuario = $usuarioModel->buscarPorId($usuarioId);
+            $usuario      = $usuarioModel->buscarPorId($usuarioId);
 
             if (!password_verify($senhaAtual, $usuario['senha'])) {
                 $_SESSION['erro'] = "Senha atual incorreta!";
