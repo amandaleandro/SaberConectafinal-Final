@@ -111,7 +111,7 @@
                   <select class="form-select" id="nivel_escolar" name="nivel_escolar">
                     <option value="">Selecione seu nível...</option>
                       <option value="Fundamental" <?= ($usuario['nivel_escolar'] ?? '') === 'Fundamental' ? 'selected' : '' ?>>Fundamental</option>
-                      <option value="Medio" <?= ($usuario['nivel_escolar'] ?? '') === 'Medio' ? 'selected' : '' ?>>Medio</option>
+                      <option value="Medio" <?= ($usuario['nivel_escolar'] ?? '') === 'Medio' ? 'selected' : '' ?>>Médio</option>
                       <option value="Superior" <?= ($usuario['nivel_escolar'] ?? '') === 'Superior' ? 'selected' : '' ?>>Superior</option>
                   </select>
                   <div class="form-text">Ajuda a personalizar conteúdos para você</div>
@@ -174,62 +174,29 @@
           </h5>
         </div>
         <div class="card-body">
-          <div class="alert alert-info mb-3">
-            <i class="bi bi-info-circle me-2"></i>
-            <strong>Dica de Segurança:</strong> Use uma senha forte com pelo menos 8 caracteres, 
-            incluindo letras maiúsculas, minúsculas, números e símbolos.
-          </div>
-          
           <form method="POST" action="?route=usuario/alterarSenha" id="formSenha">
             <div class="row">
               <div class="col-md-4 mb-3">
                 <label for="senha_atual" class="form-label fw-semibold">
                   <i class="bi bi-lock me-1"></i>Senha Atual *
                 </label>
-                <div class="input-group">
-                  <input type="password" class="form-control" id="senha_atual" name="senha_atual" required>
-                  <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('senha_atual')">
-                    <i class="bi bi-eye" id="icon_senha_atual"></i>
-                  </button>
-                </div>
+                <input type="password" class="form-control" id="senha_atual" name="senha_atual" required>
               </div>
               <div class="col-md-4 mb-3">
                 <label for="nova_senha" class="form-label fw-semibold">
                   <i class="bi bi-key me-1"></i>Nova Senha *
                 </label>
-                <div class="input-group">
-                  <input type="password" class="form-control" id="nova_senha" name="nova_senha" 
-                         minlength="8" required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$">
-                  <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('nova_senha')">
-                    <i class="bi bi-eye" id="icon_nova_senha"></i>
-                  </button>
-                </div>
-                <div class="form-text">
-                  Mín. 8 caracteres com maiúscula, minúscula e número
-                </div>
-                <div class="progress mt-2" style="height: 3px;">
-                  <div class="progress-bar" id="senha_strength" style="width: 0%"></div>
-                </div>
+                <input type="password" class="form-control" id="nova_senha" name="nova_senha" minlength="8" required>
               </div>
               <div class="col-md-4 mb-3">
                 <label for="confirmar_senha" class="form-label fw-semibold">
                   <i class="bi bi-check-circle me-1"></i>Confirmar Nova Senha *
                 </label>
-                <div class="input-group">
-                  <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" 
-                         minlength="8" required>
-                  <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirmar_senha')">
-                    <i class="bi bi-eye" id="icon_confirmar_senha"></i>
-                  </button>
-                </div>
-                <div class="invalid-feedback" id="senha_match_feedback">
-                  As senhas não coincidem
-                </div>
+                <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" minlength="8" required>
               </div>
             </div>
-            
             <div class="d-grid">
-              <button type="submit" class="btn btn-warning btn-lg" id="btn_alterar_senha" disabled>
+              <button type="submit" class="btn btn-warning btn-lg">
                 <i class="bi bi-shield-check me-2"></i>Alterar Senha
               </button>
             </div>
@@ -249,145 +216,52 @@
               <p class="text-muted mb-0">Esta ação é irreversível. Todos os seus dados serão removidos.</p>
             </div>
             <div class="col-md-4 text-end">
-              <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluir">
-                <i class="bi bi-trash icon"></i> Excluir Conta
-              </button>
+              <form method="POST" action="?route=usuario/excluirConta">
+                <button type="submit" class="btn btn-outline-danger">
+                  <i class="bi bi-trash icon"></i> Excluir Conta
+                </button>
+              </form>
             </div>
           </div>
         </div>
       </div>
     </div>
+
     <!-- Sidebar (estatísticas e ações) -->
-<div class="col-md-4">
-  <!-- Estatísticas -->
-  <div class="card shadow mb-4">
-    <div class="card-header bg-<?= $_SESSION['usuario_tipo'] === 'aluno' ? 'info' : 'success' ?> text-white">
-      <h6 class="mb-0">
-        <i class="bi bi-graph-up me-2"></i>Suas Estatísticas
-      </h6>
-    </div>
-    <div class="card-body">
-    <?php if (($_SESSION['usuario_tipo'] ?? '') === 'aluno'): ?>
-
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <h4 class="text-primary mb-0"><?= (int)($estatisticas['acessos'] ?? 0) ?></h4>
-      <small class="text-muted">Materiais Acessados</small>
-    </div>
-    <i class="bi bi-book-half fs-2 text-primary opacity-50"></i>
-     </div>
-     <hr>
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-         <h4 class="text-success mb-0">
-        <?php
-          echo isset($estatisticas['tempo_estudo']) ? $estatisticas['tempo_estudo'] : '—';
-        ?>
-        </h4>
-         <small class="text-muted">Tempo de Estudo</small>
-        </div>
-    <i class="bi bi-clock-history fs-2 text-success opacity-50"></i>
-    </div>
-    <hr>
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-      <h4 class="text-info mb-0"><?= (int)($estatisticas['disciplinas'] ?? 0) ?></h4>
-      <small class="text-muted">Disciplinas Seguindo</small>
-        </div>
-        <i class="bi bi-journal-bookmark fs-2 text-info opacity-50"></i>
-    </div>
-    <hr>
-
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-      <h4 class="text-warning mb-0"><?= (int)($estatisticas['favoritos'] ?? 0) ?></h4>
-      <small class="text-muted">Materiais Favoritos</small>
-        </div>
-     <i class="bi bi-heart-fill fs-2 text-warning opacity-50"></i>
-    </div>
-
-    <?php else: // professor ?>
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-      <h4 class="text-primary mb-0"><?= (int)($estatisticas['publicados'] ?? 0) ?></h4>
-        <small class="text-muted">Materiais Publicados</small>
-        </div>
-        <i class="bi bi-file-earmark-text fs-2 text-primary opacity-50"></i>
-    </div>
-    <hr>
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-    <   div>
-        <h4 class="text-success mb-0"><?= (int)($estatisticas['alunos'] ?? 0) ?></h4>
-        <small class="text-muted">Alunos Conectados</small>
-        </div>
-        <i class="bi bi-people fs-2 text-success opacity-50"></i>
-    </div>
-    <hr>
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-      <h4 class="text-info mb-0"><?= (int)($estatisticas['visualizacoes'] ?? 0) ?></h4>
-      <small class="text-muted">Total de Visualizações</small>
-        </div>
-    <i class="bi bi-eye fs-2 text-info opacity-50"></i>
-    </div>
-    <hr>
-
-    <div class="d-flex justify-content-between align-items-center">
-    <div>
-      <h4 class="text-warning mb-0">
-        <?= isset($estatisticas['avaliacao']) ? number_format($estatisticas['avaliacao'], 1, ',', '.') : '—' ?>
-      </h4>
-      <small class="text-muted">Avaliação Média</small>
-    </div>
-    <i class="bi bi-star-fill fs-2 text-warning opacity-50"></i>
-    </div>
-
-    <?php endif; ?>
-
-      </div>
-    </div>
-      <!-- Ações Rápidas -->
+    <div class="col-md-4">
+      <!-- Estatísticas -->
       <div class="card shadow mb-4">
-        <div class="card-header bg-secondary text-white">
+        <div class="card-header bg-<?= $_SESSION['usuario_tipo'] === 'aluno' ? 'info' : 'success' ?> text-white">
           <h6 class="mb-0">
-            <i class="bi bi-lightning me-2"></i>Ações Rápidas
+            <i class="bi bi-graph-up me-2"></i>Suas Estatísticas
           </h6>
         </div>
         <div class="card-body">
-          <?php if ($_SESSION['usuario_tipo'] === 'aluno'): ?>
-            <div class="d-grid gap-2">
-              <a href="?route=aluno/dashboard" class="btn btn-outline-primary btn-sm">
-                <i class="bi bi-speedometer2 me-1"></i>Meu Dashboard
-              </a>
-              <a href="?route=aluno/minhasMaterias" class="btn btn-outline-success btn-sm">
-                <i class="bi bi-journal-bookmark me-1"></i>Minhas Matérias
-              </a>
-              <a href="?route=aluno/Conteudos_favoritos" class="btn btn-outline-warning btn-sm">
-                <i class="bi bi-heart me-1"></i>Favoritos
-              </a>
-              <a href="?route=aluno/todasMaterias" class="btn btn-outline-info btn-sm">
-                <i class="bi bi-search me-1"></i>Explorar Conteúdos
-              </a>
+          <?php if (($_SESSION['usuario_tipo'] ?? '') === 'aluno'): ?>
+            <div class="mb-3">
+              <h4 class="text-primary"><?= (int)($estatisticas['materiaisAcessados'] ?? 0) ?></h4>
+              <small class="text-muted">Materiais Acessados</small>
+            </div>
+            <div class="mb-3">
+              <h4 class="text-info"><?= (int)($estatisticas['disciplinas'] ?? 0) ?></h4>
+              <small class="text-muted">Disciplinas Seguindo</small>
+            </div>
+            <div>
+              <h4 class="text-warning"><?= (int)($estatisticas['favoritos'] ?? 0) ?></h4>
+              <small class="text-muted">Materiais Favoritos</small>
             </div>
           <?php else: ?>
-            <div class="d-grid gap-2">
-              <a href="?route=professor/dashboard" class="btn btn-outline-primary btn-sm">
-                <i class="bi bi-speedometer2 me-1"></i>Meu Dashboard
-              </a>
-              <a href="?route=materia/minhas" class="btn btn-outline-success btn-sm">
-                <i class="bi bi-journal-text me-1"></i>Minhas Matérias
-              </a>
-              <a href="?route=conteudo/meusProfessor" class="btn btn-outline-warning btn-sm">
-                <i class="bi bi-file-earmark-plus me-1"></i>Meus Conteúdos
-              </a>
-              <a href="?route=professor/gerenciarAlunos" class="btn btn-outline-info btn-sm">
-                <i class="bi bi-people me-1"></i>Gerenciar Alunos
-              </a>
+            <div class="mb-3">
+              <h4 class="text-primary"><?= (int)($estatisticas['materiaisPublicados'] ?? 0) ?></h4>
+              <small class="text-muted">Materiais Publicados</small>
+            </div>
+            <div class="mb-3">
+              <h4 class="text-success"><?= (int)($estatisticas['alunosConectados'] ?? 0) ?></h4>
+              <small class="text-muted">Alunos Conectados</small>
+            </div>
+            <div>
+              <h4 class="text-info"><?= (int)($estatisticas['visualizacoes'] ?? 0) ?></h4>
+              <small class="text-muted">Total de Visualizações</small>
             </div>
           <?php endif; ?>
         </div>
@@ -395,200 +269,3 @@
     </div>
   </div>
 </div>
-
-<!-- Modal Excluir -->
-<div class="modal fade" id="modalExcluir" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Confirmar Exclusão</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <p class="mb-3">Ao excluir sua conta, você perderá permanentemente:</p>
-        <ul class="mb-4">
-          <?php if ($_SESSION['usuario_tipo'] === 'aluno'): ?>
-            <li>✗ Todo o progresso de estudos</li>
-            <li>✗ Lista de disciplinas selecionadas</li>
-            <li>✗ Histórico de materiais acessados</li>
-            <li>✗ Dados pessoais e preferências</li>
-          <?php else: ?>
-            <li>✗ Todos os materiais publicados</li>
-            <li>✗ Estatísticas de visualizações</li>
-            <li>✗ Lista de alunos associados</li>
-            <li>✗ Dados pessoais e preferências</li>
-          <?php endif; ?>
-        </ul>
-        <div class="bg-light p-3 rounded mb-3">
-          <label class="form-label"><strong>Digite "EXCLUIR" para confirmar:</strong></label>
-          <input type="text" class="form-control" id="confirmacaoTexto" placeholder="Digite EXCLUIR para confirmar">
-        </div>
-        <div class="form-floating mt-3">
-          <input type="password" class="form-control" id="senhaConfirmacao" placeholder="Senha">
-          <label for="senhaConfirmacao">Digite sua senha para confirmar</label>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          <i class="bi bi-x-circle icon"></i> Cancelar
-        </button>
-        <form method="POST" action="?route=usuario/excluirConta" class="d-inline">
-          <button type="submit" class="btn btn-secondary" id="btnConfirmarExclusao" disabled>
-            <i class="bi bi-trash icon"></i> Excluir Conta
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-// ===========================
-// VALIDAÇÃO DE FORMULÁRIOS
-// ===========================
-
-// Toggle de visibilidade da senha
-function togglePassword(fieldId) {
-  const field = document.getElementById(fieldId);
-  const icon = document.getElementById('icon_' + fieldId);
-  
-  if (field.type === 'password') {
-    field.type = 'text';
-    icon.classList.replace('bi-eye', 'bi-eye-slash');
-  } else {
-    field.type = 'password';
-    icon.classList.replace('bi-eye-slash', 'bi-eye');
-  }
-}
-
-// Verificar força da senha
-function checkPasswordStrength(password) {
-  let strength = 0;
-  if (password.length >= 8) strength += 25;
-  if (/[A-Z]/.test(password)) strength += 25;
-  if (/[a-z]/.test(password)) strength += 25;
-  if (/[0-9]/.test(password)) strength += 25;
-  
-  return strength;
-}
-
-// Validação em tempo real da senha
-document.getElementById('nova_senha').addEventListener('input', function() {
-  const senha = this.value;
-  const strengthBar = document.getElementById('senha_strength');
-  const strength = checkPasswordStrength(senha);
-  
-  strengthBar.style.width = strength + '%';
-  
-  if (strength < 50) {
-    strengthBar.className = 'progress-bar bg-danger';
-  } else if (strength < 75) {
-    strengthBar.className = 'progress-bar bg-warning';
-  } else {
-    strengthBar.className = 'progress-bar bg-success';
-  }
-  
-  validatePasswordForm();
-});
-
-// Validação de confirmação de senha
-document.getElementById('confirmar_senha').addEventListener('input', validatePasswordForm);
-
-function validatePasswordForm() {
-  const nova = document.getElementById('nova_senha').value;
-  const conf = document.getElementById('confirmar_senha').value;
-  const btn = document.getElementById('btn_alterar_senha');
-  const feedback = document.getElementById('senha_match_feedback');
-  const confField = document.getElementById('confirmar_senha');
-  
-  if (nova.length >= 8 && conf.length >= 8) {
-    if (nova === conf) {
-      btn.disabled = false;
-      confField.classList.remove('is-invalid');
-      confField.classList.add('is-valid');
-      feedback.style.display = 'none';
-    } else {
-      btn.disabled = true;
-      confField.classList.remove('is-valid');
-      confField.classList.add('is-invalid');
-      feedback.style.display = 'block';
-    }
-  } else {
-    btn.disabled = true;
-    confField.classList.remove('is-valid', 'is-invalid');
-    feedback.style.display = 'none';
-  }
-}
-
-// Validação final do formulário de senha
-document.getElementById('formSenha').addEventListener('submit', function(e) {
-  const nova = document.getElementById('nova_senha').value;
-  const conf = document.getElementById('confirmar_senha').value;
-  
-  if (nova !== conf) {
-    e.preventDefault();
-    alert('As senhas não coincidem!');
-    return false;
-  }
-  
-  if (checkPasswordStrength(nova) < 75) {
-    if (!confirm('Sua senha pode ser mais forte. Deseja continuar mesmo assim?')) {
-      e.preventDefault();
-      return false;
-    }
-  }
-});
-
-// Validação do formulário de dados pessoais
-document.getElementById('formDados').addEventListener('submit', function(e) {
-  const nome = document.getElementById('nome').value.trim();
-  const email = document.getElementById('email').value.trim();
-  
-  if (nome.length < 3) {
-    e.preventDefault();
-    alert('O nome deve ter pelo menos 3 caracteres.');
-    return false;
-  }
-  
-  if (!email.includes('@')) {
-    e.preventDefault();
-    alert('Por favor, insira um email válido.');
-    return false;
-  }
-});
-
-// Validação do modal de exclusão
-document.getElementById('confirmacaoTexto').addEventListener('input', function() {
-  const btn = document.getElementById('btnConfirmarExclusao');
-  if (this.value.toUpperCase() === 'EXCLUIR') {
-    btn.disabled = false; 
-    btn.classList.replace('btn-secondary','btn-danger');
-  } else {
-    btn.disabled = true; 
-    btn.classList.replace('btn-danger','btn-secondary');
-  }
-});
-
-// Auto-save indication (opcional)
-let autoSaveTimer;
-['nome', 'email', 'nivel_escolar', 'especializacao', 'instituicao', 'bio'].forEach(fieldId => {
-  const field = document.getElementById(fieldId);
-  if (field) {
-    field.addEventListener('input', function() {
-      clearTimeout(autoSaveTimer);
-      // Opcional: mostrar indicador de alterações não salvas
-    });
-  }
-});
-
-// Mensagens de feedback automático
-setTimeout(function() {
-  const alerts = document.querySelectorAll('.alert[data-bs-dismiss="alert"]');
-  alerts.forEach(alert => {
-    if (!alert.querySelector('.btn-close')) {
-      setTimeout(() => alert.remove(), 5000);
-    }
-  });
-}, 100);
-</script>
-
