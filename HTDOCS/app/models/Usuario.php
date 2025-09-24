@@ -22,19 +22,22 @@ class Usuario {
         }
         return false;
     }
-
-    public function criar($nome, $email, $senha, $tipo, $nivel = null) {
-        $sql = "INSERT INTO usuarios (nome, email, senha, tipo, nivel_escolar, created_at, updated_at) 
-                VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
+    public function criar($nome, $email, $senha, $tipo, $nivel = null, $especializacao = null, $instituicao = null, $bio = null) {
+    $sql = "INSERT INTO usuarios (nome, email, senha, tipo, nivel_escolar, especializacao, instituicao, bio, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
-            $nome,
-            $email,
-            password_hash($senha, PASSWORD_DEFAULT),
-            $tipo,
-            $nivel
+        $nome,
+        $email,
+        password_hash($senha, PASSWORD_DEFAULT),
+        $tipo,
+        $nivel,
+        $especializacao,
+        $instituicao,
+        $bio
         ]);
     }
+
 
     public function buscarPorEmail($email) {
         $sql = "SELECT * FROM usuarios WHERE email = ?";
