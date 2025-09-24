@@ -1,0 +1,9 @@
+# Pasta de Uploads
+
+Esta pasta armazena os arquivos enviados pelos usuários.
+
+## Importante
+- Mantenha esta pasta com permissões de escrita
+- Os arquivos são organizados automaticamente pelo sistema
+- Tipos permitidos: PDF, DOC, DOCX, PPT, PPTX, JPG, JPEG, PNG
+- Tamanho máximo: 5MB por arquivo
