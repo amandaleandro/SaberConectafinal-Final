@@ -12,43 +12,36 @@ class UsuarioController extends Controller
             header("Location: ?route=auth/login");
             exit;
         }
-        // MODELOS QUE VAMOS USAR
+
+        $usuarioModel  = new Usuario();
         $conteudoModel = new Conteudo();
         $materiaModel  = new Materia();
-        $usuarioModel  = new Usuario();
 
-        // Monta estatísticas dinâmicas conforme o tipo
-        $estatisticas = [];
+        // pega os dados do usuário
+        $usuario = $usuarioModel->buscarPorId($usuarioId);
 
+        // estatísticas
         if (($_SESSION['usuario_tipo'] ?? '') === 'aluno') {
-        $estatisticas = [
-        'acessos'     => (int) $conteudoModel->contarAcessosPorAluno($usuarioId),
-        'disciplinas' => (int) $materiaModel->contarPorAluno($usuarioId),
-        'favoritos'   => (int) $conteudoModel->contarFavoritosPorAluno($usuarioId),
-        // se um dia tiver tabela de tempo de estudo, preencha aqui
-        'tempo_estudo'=> null, // (ex.: minutos) por enquanto inexistente
-        ];
-    } else { // professor
-        $estatisticas = [
-            'publicados'     => (int) $conteudoModel->contarPorProfessor($usuarioId),
-            'alunos'         => (int) $usuarioModel->contarAlunosPorProfessor($usuarioId),
-            'visualizacoes'  => (int) $conteudoModel->contarAcessosPorProfessor($usuarioId)
-    ];
-}
-
-// passa para a view
-return $this->view("auth/perfil", [
-    "usuario"      => $usuario,
-    "mensagem"     => $_SESSION['mensagem'] ?? null,
-    "erro"         => $_SESSION['erro'] ?? null,
-    "estatisticas" => $estatisticas,
-]);
+            $estatisticas = [
+                'acessos'      => (int) $conteudoModel->contarAcessosPorAluno($usuarioId),
+                'disciplinas'  => (int) $materiaModel->contarPorAluno($usuarioId),
+                'favoritos'    => (int) $conteudoModel->contarFavoritosPorAluno($usuarioId),
+                'tempo_estudo' => null // placeholder até implementar
+            ];
+        } else { // professor
+            $estatisticas = [
+                'publicados'    => (int) $conteudoModel->contarPorProfessor($usuarioId),
+                'alunos'        => (int) $usuarioModel->contarAlunosPorProfessor($usuarioId),
+                'visualizacoes' => (int) $conteudoModel->contarAcessosPorProfessor($usuarioId),
+                'avaliacao'     => null // se futuramente calcular média
+            ];
+        }
 
         return $this->view("usuario/perfil", [
-            "usuario" => $usuario,
-            "mensagem" => $_SESSION['mensagem'] ?? null,
-            "erro" => $_SESSION['erro'] ?? null,
-            "estatisticas" => $estatisticas
+            "usuario"      => $usuario,
+            "mensagem"     => $_SESSION['mensagem'] ?? null,
+            "erro"         => $_SESSION['erro'] ?? null,
+            "estatisticas" => $estatisticas,
         ]);
     }
 
@@ -61,7 +54,7 @@ return $this->view("auth/perfil", [
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $nome = trim($_POST['nome'] ?? '');
+            $nome  = trim($_POST['nome'] ?? '');
             $email = trim($_POST['email'] ?? '');
 
             if (strlen($nome) < 3) {
@@ -85,7 +78,6 @@ return $this->view("auth/perfil", [
                 exit;
             }
 
-            // Montar dados
             $dados = [
                 'nome'  => $nome,
                 'email' => $email,
@@ -114,70 +106,70 @@ return $this->view("auth/perfil", [
     }
 
     public function alterarSenha()
-{
-    $usuarioId = $_SESSION['usuario_id'] ?? null;
-    if (!$usuarioId) {
-        header("Location: ?route=auth/login");
-        exit;
-    }
+    {
+        $usuarioId = $_SESSION['usuario_id'] ?? null;
+        if (!$usuarioId) {
+            header("Location: ?route=auth/login");
+            exit;
+        }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $senhaAtual   = $_POST['senha_atual'] ?? '';
-        $novaSenha    = $_POST['nova_senha'] ?? '';
-        $confirmar    = $_POST['confirmar_senha'] ?? '';
-        $usuarioModel = new Usuario();
-        $usuario      = $usuarioModel->buscarPorId($usuarioId);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $senhaAtual   = $_POST['senha_atual'] ?? '';
+            $novaSenha    = $_POST['nova_senha'] ?? '';
+            $confirmar    = $_POST['confirmar_senha'] ?? '';
 
-        if (!password_verify($senhaAtual, $usuario['senha'])) {
-            $_SESSION['erro'] = "Senha atual incorreta!";
-        } elseif ($novaSenha !== $confirmar) {
-            $_SESSION['erro'] = "As senhas não coincidem!";
-        } elseif (strlen($novaSenha) < 8) {
-            $_SESSION['erro'] = "A nova senha deve ter pelo menos 8 caracteres!";
-        } else {
-            $ok = $usuarioModel->alterarSenha($usuarioId, password_hash($novaSenha, PASSWORD_DEFAULT));
-            if ($ok) {
-                $_SESSION['mensagem'] = "Senha alterada com sucesso!";
+            $usuarioModel = new Usuario();
+            $usuario = $usuarioModel->buscarPorId($usuarioId);
+
+            if (!password_verify($senhaAtual, $usuario['senha'])) {
+                $_SESSION['erro'] = "Senha atual incorreta!";
+            } elseif ($novaSenha !== $confirmar) {
+                $_SESSION['erro'] = "As senhas não coincidem!";
+            } elseif (strlen($novaSenha) < 8) {
+                $_SESSION['erro'] = "A nova senha deve ter pelo menos 8 caracteres!";
             } else {
-                $_SESSION['erro'] = "Erro ao alterar senha.";
+                $ok = $usuarioModel->alterarSenha($usuarioId, password_hash($novaSenha, PASSWORD_DEFAULT));
+                if ($ok) {
+                    $_SESSION['mensagem'] = "Senha alterada com sucesso!";
+                } else {
+                    $_SESSION['erro'] = "Erro ao alterar senha.";
+                }
             }
-        }
 
-        header("Location: ?route=usuario/perfil");
-        exit;
-    } else {
-        // Se acessar via GET, só redireciona pro perfil com aviso
-        $_SESSION['erro'] = "Acesse essa funcionalidade pelo formulário de alteração de senha.";
-        header("Location: ?route=usuario/perfil");
-        exit;
-        }
-    }
-    public function excluirConta(){
-    $usuarioId = $_SESSION['usuario_id'] ?? null;
-    if (!$usuarioId) {
-        header("Location: ?route=auth/login");
-        exit;
-    }
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $usuarioModel = new Usuario();
-        $ok = $usuarioModel->excluirConta($usuarioId);
-
-        if ($ok) {
-            session_destroy();
-            header("Location: ?route=auth/login&msg=contaExcluida");
+            header("Location: ?route=usuario/perfil");
             exit;
         } else {
-            $_SESSION['erro'] = "Erro ao excluir conta.";
+            $_SESSION['erro'] = "Acesse essa funcionalidade pelo formulário de alteração de senha.";
             header("Location: ?route=usuario/perfil");
             exit;
         }
-    } else {
-        // Se acessar via GET, redireciona pro perfil com mensagem
-        $_SESSION['erro'] = "A exclusão de conta deve ser feita pelo formulário.";
-        header("Location: ?route=usuario/perfil");
-        exit;
     }
-}
 
+    public function excluirConta()
+    {
+        $usuarioId = $_SESSION['usuario_id'] ?? null;
+        if (!$usuarioId) {
+            header("Location: ?route=auth/login");
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $usuarioModel = new Usuario();
+            $ok = $usuarioModel->excluirConta($usuarioId);
+
+            if ($ok) {
+                session_destroy();
+                header("Location: ?route=auth/login&msg=contaExcluida");
+                exit;
+            } else {
+                $_SESSION['erro'] = "Erro ao excluir conta.";
+                header("Location: ?route=usuario/perfil");
+                exit;
+            }
+        } else {
+            $_SESSION['erro'] = "A exclusão de conta deve ser feita pelo formulário.";
+            header("Location: ?route=usuario/perfil");
+            exit;
+        }
+    }
 }
