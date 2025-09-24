@@ -12,27 +12,37 @@ class UsuarioController extends Controller
             header("Location: ?route=auth/login");
             exit;
         }
-
-        $usuarioModel  = new Usuario();
+        // MODELOS QUE VAMOS USAR
         $conteudoModel = new Conteudo();
         $materiaModel  = new Materia();
+        $usuarioModel  = new Usuario();
 
-        $usuario = $usuarioModel->buscarPorId($usuarioId);
+        // Monta estatísticas dinâmicas conforme o tipo
+        $estatisticas = [];
 
-        // Estatísticas dinâmicas
-        if ($_SESSION['usuario_tipo'] === 'aluno') {
-            $estatisticas = [
-                'materiaisAcessados' => $conteudoModel->contarAcessosPorAluno($usuarioId),
-                'disciplinas'        => $materiaModel->contarPorAluno($usuarioId),
-                'favoritos'          => $conteudoModel->contarFavoritosPorAluno($usuarioId),
-            ];
-        } else {
-            $estatisticas = [
-                'materiaisPublicados' => $conteudoModel->contarPorProfessor($usuarioId),
-                'alunosConectados'    => $usuarioModel->contarAlunosPorProfessor($usuarioId),
-                'visualizacoes'       => $conteudoModel->contarAcessosPorProfessor($usuarioId),
-            ];
-        }
+        if (($_SESSION['usuario_tipo'] ?? '') === 'aluno') {
+        $estatisticas = [
+        'acessos'     => (int) $conteudoModel->contarAcessosPorAluno($usuarioId),
+        'disciplinas' => (int) $materiaModel->contarPorAluno($usuarioId),
+        'favoritos'   => (int) $conteudoModel->contarFavoritosPorAluno($usuarioId),
+        // se um dia tiver tabela de tempo de estudo, preencha aqui
+        'tempo_estudo'=> null, // (ex.: minutos) por enquanto inexistente
+        ];
+    } else { // professor
+        $estatisticas = [
+            'publicados'     => (int) $conteudoModel->contarPorProfessor($usuarioId),
+            'alunos'         => (int) $usuarioModel->contarAlunosPorProfessor($usuarioId),
+            'visualizacoes'  => (int) $conteudoModel->contarAcessosPorProfessor($usuarioId)
+    ];
+}
+
+// passa para a view
+return $this->view("auth/perfil", [
+    "usuario"      => $usuario,
+    "mensagem"     => $_SESSION['mensagem'] ?? null,
+    "erro"         => $_SESSION['erro'] ?? null,
+    "estatisticas" => $estatisticas,
+]);
 
         return $this->view("usuario/perfil", [
             "usuario" => $usuario,
