@@ -267,71 +267,88 @@
       </h6>
     </div>
     <div class="card-body">
-      <?php if ($_SESSION['usuario_tipo'] === 'aluno'): ?>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h4 class="text-primary mb-0"><?= $estatisticas['materiais_acessados'] ?? 0 ?></h4>
-            <small class="text-muted">Materiais Acessados</small>
-          </div>
-          <i class="bi bi-book-half fs-2 text-primary opacity-50"></i>
+    <?php if (($_SESSION['usuario_tipo'] ?? '') === 'aluno'): ?>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="text-primary mb-0"><?= (int)($estatisticas['acessos'] ?? 0) ?></h4>
+      <small class="text-muted">Materiais Acessados</small>
+    </div>
+    <i class="bi bi-book-half fs-2 text-primary opacity-50"></i>
+     </div>
+     <hr>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+         <h4 class="text-success mb-0">
+        <?php
+          echo isset($estatisticas['tempo_estudo']) ? $estatisticas['tempo_estudo'] : '—';
+        ?>
+        </h4>
+         <small class="text-muted">Tempo de Estudo</small>
         </div>
-        <hr>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h4 class="text-success mb-0"><?= $estatisticas['tempo_estudo'] ?? '0h' ?></h4>
-            <small class="text-muted">Tempo de Estudo</small>
-          </div>
-          <i class="bi bi-clock-history fs-2 text-success opacity-50"></i>
+    <i class="bi bi-clock-history fs-2 text-success opacity-50"></i>
+    </div>
+    <hr>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+      <h4 class="text-info mb-0"><?= (int)($estatisticas['disciplinas'] ?? 0) ?></h4>
+      <small class="text-muted">Disciplinas Seguindo</small>
         </div>
-        <hr>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h4 class="text-info mb-0"><?= $estatisticas['disciplinas'] ?? 0 ?></h4>
-            <small class="text-muted">Disciplinas Seguindo</small>
-          </div>
-          <i class="bi bi-journal-bookmark fs-2 text-info opacity-50"></i>
+        <i class="bi bi-journal-bookmark fs-2 text-info opacity-50"></i>
+    </div>
+    <hr>
+
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+      <h4 class="text-warning mb-0"><?= (int)($estatisticas['favoritos'] ?? 0) ?></h4>
+      <small class="text-muted">Materiais Favoritos</small>
         </div>
-        <hr>
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h4 class="text-warning mb-0"><?= $estatisticas['favoritos'] ?? 0 ?></h4>
-            <small class="text-muted">Materiais Favoritos</small>
-          </div>
-          <i class="bi bi-heart-fill fs-2 text-warning opacity-50"></i>
+     <i class="bi bi-heart-fill fs-2 text-warning opacity-50"></i>
+    </div>
+
+    <?php else: // professor ?>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+      <h4 class="text-primary mb-0"><?= (int)($estatisticas['publicados'] ?? 0) ?></h4>
+        <small class="text-muted">Materiais Publicados</small>
         </div>
-      <?php else: ?>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h4 class="text-primary mb-0"><?= $estatisticas['materiais_publicados'] ?? 0 ?></h4>
-            <small class="text-muted">Materiais Publicados</small>
-          </div>
-          <i class="bi bi-file-earmark-text fs-2 text-primary opacity-50"></i>
+        <i class="bi bi-file-earmark-text fs-2 text-primary opacity-50"></i>
+    </div>
+    <hr>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+    <   div>
+        <h4 class="text-success mb-0"><?= (int)($estatisticas['alunos'] ?? 0) ?></h4>
+        <small class="text-muted">Alunos Conectados</small>
         </div>
-        <hr>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h4 class="text-success mb-0"><?= $estatisticas['alunos_conectados'] ?? 0 ?></h4>
-            <small class="text-muted">Alunos Conectados</small>
-          </div>
-          <i class="bi bi-people fs-2 text-success opacity-50"></i>
+        <i class="bi bi-people fs-2 text-success opacity-50"></i>
+    </div>
+    <hr>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+      <h4 class="text-info mb-0"><?= (int)($estatisticas['visualizacoes'] ?? 0) ?></h4>
+      <small class="text-muted">Total de Visualizações</small>
         </div>
-        <hr>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h4 class="text-info mb-0"><?= $estatisticas['visualizacoes'] ?? 0 ?></h4>
-            <small class="text-muted">Total de Visualizações</small>
-          </div>
-          <i class="bi bi-eye fs-2 text-info opacity-50"></i>
-        </div>
-        <hr>
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h4 class="text-warning mb-0"><?= $estatisticas['avaliacao_media'] ?? 0 ?></h4>
-            <small class="text-muted">Avaliação Média</small>
-          </div>
-          <i class="bi bi-star-fill fs-2 text-warning opacity-50"></i>
-        </div>
-      <?php endif; ?>
+    <i class="bi bi-eye fs-2 text-info opacity-50"></i>
+    </div>
+    <hr>
+
+    <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h4 class="text-warning mb-0">
+        <?= isset($estatisticas['avaliacao']) ? number_format($estatisticas['avaliacao'], 1, ',', '.') : '—' ?>
+      </h4>
+      <small class="text-muted">Avaliação Média</small>
+    </div>
+    <i class="bi bi-star-fill fs-2 text-warning opacity-50"></i>
+    </div>
+
+    <?php endif; ?>
+
       </div>
     </div>
       <!-- Ações Rápidas -->
