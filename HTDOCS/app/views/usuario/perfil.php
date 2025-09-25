@@ -1,4 +1,4 @@
-<?php include_once 'app/views/partials/header.php'; ?>
+
 
 <div class="container my-4">
   <!-- Cabeçalho do perfil -->
