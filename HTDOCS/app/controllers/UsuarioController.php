@@ -38,7 +38,7 @@ class UsuarioController extends Controller
         // pega dados do usuário
         $usuario = $usuarioModel->buscarPorId($usuarioId);
 
-        return $this->view("auth/perfil", [
+        return $this->view("usuario/perfil", [
             "usuario"      => $usuario,
             "mensagem"     => $_SESSION['mensagem'] ?? null,
             "erro"         => $_SESSION['erro'] ?? null,
